@@ -5,22 +5,28 @@ const morganDebug = require('morgan-debug');
 const helmet = require('helmet');
 const passport = require('passport');
 const debug = require('debug')('myapp:passport');
-const BearerStrategy = require('passport-http-bearer').Strategy;
+const BasicStrategy = require('passport-http').BasicStrategy;
+const bcrypt = require('bcrypt');
 const data = require('./data');
 
 const indexRouter = require('./routes/index');
-// var usersRouter = require('./routes/users');
 
 const app = express();
-passport.use(new BearerStrategy((token, done) => {
-  debug(`Passport: ${token}`);
 
-  if (token === 'SECRET') {
-    return done(null, {});
+passport.use(new BasicStrategy(async (username, password, done) => {
+  const {db} = app.locals;
+  try {
+    const user = await db.collection('librarian').findOne({username});
+    if (!user) return done(null, false);
+    const match = await bcrypt.compare(password, user.hash);
+    if (!match) return done(null, false);
+
+    return done(null, user);
+  } catch (e) {
+    return done(e);
   }
-
-  return done(null, false);
 }));
+
 // view engine setup
 app.locals.data = data;
 
@@ -30,10 +36,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(passport.initialize());
-// app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-// app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

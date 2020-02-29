@@ -18,14 +18,21 @@ router.get('/users', async (req, res, next) => {
 });
 
 router.get('/books', async (req, res, next) => {
-  const { db } = req.app.locals.db;
+  const { db } = req.app.locals;
   const books = await db.collection('books').find().toArray();
 
   return res.send(books)
 });
 
+router.get('/librarians', async (req, res, next) => {
+    const { db } = req.app.locals;
+    const books = await db.collection('librarians').find().toArray();
+
+    return res.send(books)
+});
+
 router.get('/loans',
-    passport.authenticate('bearer', {session: false}),
+    passport.authenticate('basic', {session: false}),
     async (req, res, next) => {
     const { db } = req.app.locals;
     const books = await db.collection('books').find().toArray();
@@ -37,7 +44,7 @@ router.get('/loans',
 });
 
 router.delete('/loans/:loanId',
-    passport.authenticate('bearer', {session: false}),
+    passport.authenticate('basic', {session: false}),
     async (req, res, next) => {
     const { db } = req.app.locals;
     const { loanId } = req.params;

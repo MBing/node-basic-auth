@@ -1,6 +1,8 @@
 const debug = require('debug')('myapp:mongodb');
 const MongoClient = require('mongodb').MongoClient;
 const ObjectID = require('mongodb').ObjectID;
+const bcrypt = require('bcrypt');
+const generatePassword = require('password-generator');
 
 const { mongodb: mongoConfig } = require('./config');
 const createSchema = async db => {
@@ -12,6 +14,7 @@ const createSchema = async db => {
         await Promise.all([
             db.dropCollection('books'),
             db.dropCollection('users'),
+            db.dropCollection('librarians'),
             db.dropCollection('loans'),
         ]);
     } catch (e) {
@@ -21,6 +24,7 @@ const createSchema = async db => {
     await Promise.all([
         db.createCollection('books'),
         db.createCollection('users'),
+        db.createCollection('librarians'),
         db.createCollection('loans'),
     ]);
 };
@@ -40,11 +44,27 @@ const createData = async db => {
     const booksCollection = db.collection('books');
     const usersCollection = db.collection('users');
     const loansCollection = db.collection('loans');
+    const librariansCollection = db.collection('librarians');
 
-    let {books, users, loans} = require('./data');
+    let {books, users, loans, librarians} = require('./data');
 
     books = addObjectID(books);
     users = addObjectID(users);
+    librarians = addObjectID(librarians);
+
+    librarians = await Promise.all(
+        librarians.map(async ({name, username}) => {
+            const token = generatePassword(10, false);
+            debug(`${name} -> ${username} : ${token}`);
+            const hash = await bcrypt.hash(token, 10);
+
+            return {
+                name,
+                username,
+                hash,
+            }
+        })
+    )
 
     loans = loans.map(({bookId, userId}) => {
         const book = findById(books)(bookId);
@@ -59,6 +79,7 @@ const createData = async db => {
 
     await booksCollection.insertMany(books.map(({title, _id}) => ({ title, _id})));
     await usersCollection.insertMany(users.map(({name, _id}) => ({ name, _id})));
+    await librariansCollection.insertMany(librarians);
     await loansCollection.insertMany(loans);
 };
 

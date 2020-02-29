@@ -40,5 +40,19 @@
       "id": 2,
       "name": "Charlotte Davies"
     }
+  ],
+  "librarians": [
+    {
+      "name"; "Michael Stevenson",
+      "username": "m_stevenson"
+    },
+    {
+      "name": "James Holland",
+      "username": "j_holland"
+    },
+    {
+      "name": "Susan Welch",
+      "username": "s_welch"
+    }
   ]
 }
