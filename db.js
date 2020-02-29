@@ -65,14 +65,19 @@ const createData = async db => {
 const init = async () => {
     debug('init');
     const mongoURI = mongoConfig.uri;
-    const mongoClient = await MongoClient.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
-    debug('connected');
-    await createSchema(mongoClient.db());
-    debug('schema created');
-    await createData(mongoClient.db());
-    debug('data created');
+    try {
+        const mongoClient = await MongoClient.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
+        debug('connected');
+        await createSchema(mongoClient.db());
+        debug('schema created');
+        await createData(mongoClient.db());
+        debug('data created');
 
-    return mongoClient.db();
+        return mongoClient.db();
+    } catch (e) {
+        debug('Could not connect.');
+        throw new Error('Could not connect!');
+    }
 };
 
 module.exports = { init, findByObjectId };

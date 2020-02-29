@@ -52,6 +52,8 @@ router.delete('/loans/:loanId',
     if ( ok !== 1) {
         return next(createError(500));
     }
+
+    return res.send(value);
 });
 
 module.exports = router;
