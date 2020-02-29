@@ -3,6 +3,7 @@ const router = express.Router();
 const passport = require('passport');
 const ObjectID = require('mongodb').ObjectID;
 const createError = require('http-errors');
+const { loans } = require('../mappers');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -45,7 +46,7 @@ router.delete('/loans/:loanId',
         return next(createError(400));
     }
     const _id = ObjectID(loanId);
-    const loans = await db.collection('loans');
+    const loans = db.collection('loans');
     const { lastErrorObject, ok, value } = await loans.findOneAndDelete({_id});
 
     if ( ok !== 1) {
