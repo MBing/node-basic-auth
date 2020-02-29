@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
-const ObjectID = require('mongodb').ObjectID;
+const {ObjectID} = require('mongodb');
 const createError = require('http-errors');
 const { loans } = require('../mappers');
 
@@ -10,21 +10,27 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-router.get('/users', async (req, res, next) => {
+router.get('/users',
+    passport.authenticate('basic', {session: false}),
+    async (req, res, next) => {
   const { db } = req.app.locals;
   const users = await db.collection('users').find().toArray();
 
   return res.send(users)
 });
 
-router.get('/books', async (req, res, next) => {
+router.get('/books',
+    passport.authenticate('basic', {session: false}),
+    async (req, res, next) => {
   const { db } = req.app.locals;
   const books = await db.collection('books').find().toArray();
 
   return res.send(books)
 });
 
-router.get('/librarians', async (req, res, next) => {
+router.get('/librarians',
+    passport.authenticate('basic', {session: false}),
+    async (req, res, next) => {
     const { db } = req.app.locals;
     const books = await db.collection('librarians').find().toArray();
 

@@ -19,7 +19,7 @@ app.set('port', port);
 /**
  * Create HTTP server.
  */
-
+debug('Create Server');
 const server = http.createServer(app);
 
 /**
@@ -28,6 +28,7 @@ const server = http.createServer(app);
 
 // Wait for MongoDB Connection before continuing anything else
 const init = async () => {
+  debug('Initialize DB');
   const mongoDB = await db.init();
 
   app.locals.db = mongoDB;
